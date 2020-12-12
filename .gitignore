@@ -5,6 +5,7 @@
 
 data/*
 _site/data/*
+docs/data/*
 Assignment5/transactions.csv/*
 Assignment5/accounts_analytical.csv/*
 Dataset_spine.csv/*
