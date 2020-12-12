@@ -162,7 +162,7 @@ Column {data-width=600}
 -----------------------------------------------------------------------
 
 ### Keywords (refresh for visual)
-```{r}
+```{r,fig.width=15,fig.height=4}
 tags = read_csv("data/events/tags2name.csv")
   
 df <- events %>%
@@ -233,6 +233,7 @@ ggplot(shots) +
   annotate_pitch(fill   = "darkseagreen1") +
   geom_point(aes(x = x, y = y, color=eventName), alpha = 0.1, show.legend = FALSE) +
   direction_label() +
+  labs(title="Places where Man City took a shot")+
   theme_pitch()
 ```
 
@@ -246,6 +247,7 @@ ggplot(oppos) +
   annotate_pitch(fill   = "darkseagreen1") +
   geom_point(aes(x = x, y = y, color=Description), alpha = 0.3, show.legend = FALSE) +
   direction_label() +
+  labs(title="Places where a Man City chance to score") +
   theme_pitch()
 ```
 

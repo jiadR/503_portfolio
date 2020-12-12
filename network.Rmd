@@ -30,7 +30,7 @@ events <- events %>%
 
 ### Passing Network
 
-This is all the pass events recorded in a game that Mancester City absolutely destroyed their opponent, Swansea City. The result is 5 - 0. From the passing network, we can tell Man City maintained strong mid-field control and forward offensiveness. **Feel free to move thing around and come up with your formation of the game.** Go to the link [here](https://www.premierleague.com/match/22688) and click Line-ups to check out the true answer!
+This is all the pass events recorded in a game that Mancester City absolutely destroyed their opponent, Swansea City. The result is 5 - 0. From the passing network, we can tell Man City maintained strong mid-field control and forward offensiveness. **Feel free to move thing around and come up with your formation of the game.** Go to the link [here](https://www.premierleague.com/match/22688) and click Line-ups to check out the true answer! Note that there are three substitues.
 
 
 ```{r}
