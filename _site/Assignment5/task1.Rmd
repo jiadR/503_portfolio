@@ -1,0 +1,43 @@
+---
+title: "task3"
+author: "Dongru Jia"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+```
+
+================================================================================================================================
+1.
+================================================================================================================================
+
+```{r}
+task1 = df[,c('account_id','credit_cards','loan_amount',"max_balance","min_balance")]
+task1$credit_cards[is.na(task1$credit_cards)] <- 0
+task1$loan_amount[!is.na(task1$loan_amount)] <- T
+task1$loan_amount[is.na(task1$loan_amount)] <- F
+colnames(task1)[3] <- 'loan'
+task1$loan <- as.factor(task1$loan)
+task1$avg_balance <- (task1$max_balance+task1$min_balance)/2
+
+task1 %>% mutate(cc = ifelse(credit_cards==0, FALSE, TRUE)) %>%
+  ggplot(aes(x=loan, y=avg_balance)) +
+  geom_point(aes(color=cc, shape=loan,alpha=0.3),position=position_jitter(0.4)) +
+    labs(x = "loan status",
+           y = "average balance", title = "Loan vs Number of credit cards vs Average balance")
+
+```
+
+
+
+

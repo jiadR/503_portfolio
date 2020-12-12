@@ -1,0 +1,37 @@
+---
+title: "Assignment3"
+---
+
+**Instruction:**
+First, visualize the data and make it as ugly as possible. Then, Edit the ugly charts to make it readable.
+
+================================================================================================================
+
+```{r,echo=F}
+library(plotrix)
+data = read.csv('Dataset_spine.csv')
+cts = c(sum(data$class_attribute=='Abnormal'), sum(data$class_attribute=='Normal'))
+lbs = c('Abnormal', 'Normal')
+pie(cts,lbs, main = 'A Very Naive Pie')
+
+
+pts = round(cts*100/sum(cts),2)
+lbs = paste(paste(lbs,pts), '%', sep = '')
+pie(cts,lbs,main = 'A Somewhat Naive Pie',col = rainbow(2))
+legend('topright',lbs,fill = rainbow(2))
+
+
+pie3D(cts,labels = lbs,explode = 0.1, main = 'An Ok Pie')
+
+
+
+slices <- c(210,100)
+lbls <- c('Abnormal', 'Normal')
+pie3D(slices,labels=lbls,explode=0.1,
+   main="An Ok Pie with Style")
+legend('topright',lbs,fill = rainbow(2))
+```
+================================================================================================================
+#### A hand drawing progress : )
+![](Assignment3.pdf){width=100% height=800}
+

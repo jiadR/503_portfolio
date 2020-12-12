@@ -1,0 +1,69 @@
+---
+title: "task5"
+author: "Dongru Jia"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+df1 = read.csv('transactions.csv')
+```
+================================================================================================================================
+5.
+================================================================================================================================
+```{r}
+df$credit_cards = ifelse(is.na(df$credit_cards),F,T)
+df1 = merge(x = df1, y = df[,c("account_id","credit_cards")], by = "account_id", all.x = TRUE)
+df1[,c("account_id","method","credit_cards")] %>% 
+  filter(as.character(method) == "credit card") %>%
+  distinct() %>%
+  ggplot(aes(x=credit_cards,y=account_id)) +
+  geom_point(shape="-",size=30, alpha=0.05)
+```
+
+```{r}
+library(reticulate)
+```
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+trans = pd.read_csv("transactions.csv")
+anly = pd.read_csv("accounts_analytical.csv")
+```
+
+```{python}
+anly['credit_cards'] = anly['credit_cards'].apply(lambda x: False if pd.isna(x) else True)
+trans = pd.merge(trans,anly[['account_id','credit_cards']],on='account_id',how='left')
+tar = trans[["account_id","method","credit_cards"]]
+tar = tar[tar.method=='credit card']
+tar.drop_duplicates(inplace=True)
+plt.figure(figsize=(10,5))
+plt.scatter(tar.credit_cards.astype(str),tar.account_id,alpha=0.1,marker='_',s=1000)
+plt.title('All credit card transactions')
+plt.ylabel('Account id')
+plt.xlabel('Credit card status')
+plt.margins(x=1)
+plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+

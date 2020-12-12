@@ -1,0 +1,11 @@
+---
+title: "Assignment1"
+---
+
+**Instruction:**
+Explore a clinical dataset and draw 3 conceptual data visualizations.
+
+================================================================================================================
+
+![](Assignment1.pdf){width=100% height=800}
+

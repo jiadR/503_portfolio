@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Final Project Network</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
+<link href="site_libs/vis-4.20.1/vis.css" rel="stylesheet" />
+<script src="site_libs/vis-4.20.1/vis.min.js"></script>
+<script src="site_libs/visNetwork-binding-2.0.9/visNetwork.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Dongru's Portfolio</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="assignment1.html">Assignment1</a>
+</li>
+<li>
+  <a href="assignment2.html">Assignment2</a>
+</li>
+<li>
+  <a href="assignment3.html">Assignment3</a>
+</li>
+<li>
+  <a href="assignment5.html">Assignment5</a>
+</li>
+<li>
+  <a href="final.html">Final Project</a>
+</li>
+<li>
+  <a href="network.html">Final Project Network Graph</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="section-header">
+
+
+
+<h1 class="title toc-ignore">Final Project Network</h1>
+
+</div>
+
+
+<div id="section-passing-network" class="section level3">
+<h3>Passing Network</h3>
+<p>This is all the pass events recorded in a game that Mancester City absolutely destroyed their opponent, Swansea City. The result is 5 - 0. From the passing network, we can tell Man City maintained strong mid-field control and forward offensiveness. <strong>Feel free to move thing around and come up with your formation of the game.</strong> Go to the link <a href="https://www.premierleague.com/match/22688">here</a> and click Line-ups to check out the true answer!</p>
+<div id="htmlwidget-ba32e0541469b5ed4906" style="width:1440px;height:672px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ba32e0541469b5ed4906">{"x":{"nodes":{"id":[38021,265673,8307,134502,14808,8464,11066,71654,70083,8317,340386,8324,447205,26136],"label":["K. De Bruyne","Bernardo Silva","V. Kompany","A. Laporte","İ. Gündoğan","F. Delph","R. Sterling","Ederson","Danilo","David Silva","Gabriel Jesus","Y. Touré","P. Foden","B. Mendy"],"group":["Midfielder","Midfielder","Defender","Defender","Midfielder","Midfielder","Forward","Goalkeeper","Defender","Midfielder","Forward","Midfielder","Midfielder","Defender"],"x":[0.638175669146708,0.0967479750215798,0.550427093631163,0.51571050066671,-0.00628246963869061,0.854043855724276,0.00284604714431702,1,-0.362819455119456,-0.323355653468022,-0.850159699983037,0.0302306672432375,-1,-0.429149877532801],"y":[0.914229060145656,0.312249575725759,-0.302569784801042,0.0473680740915288,-0.201798089228587,0.359625904245709,1,-0.709758812567337,-0.0308099681004067,0.43562486440033,0.513156159012414,-0.693820142544933,-0.45155380381003,-1]},"edges":{"from":[8307,8307,8307,8307,8307,8307,8307,8307,8307,8307,8307,8307,8307,8317,8317,8317,8317,8317,8317,8317,8317,8317,8317,8317,8317,8317,8324,8324,8324,8324,8324,8324,8324,8324,8324,8324,8324,8464,8464,8464,8464,8464,8464,8464,8464,8464,8464,8464,8464,11066,11066,11066,11066,11066,11066,11066,11066,14808,14808,14808,14808,14808,14808,14808,14808,14808,14808,14808,14808,14808,14808,26136,26136,26136,26136,26136,26136,26136,38021,38021,38021,38021,38021,38021,38021,38021,70083,70083,70083,70083,70083,70083,70083,70083,70083,70083,70083,70083,71654,71654,71654,71654,71654,134502,134502,134502,134502,134502,134502,134502,134502,134502,134502,134502,134502,134502,265673,265673,265673,265673,265673,265673,265673,265673,265673,265673,265673,265673,265673,265673,340386,340386,340386,340386,340386,340386,340386,340386,340386,340386,340386,447205,447205,447205,447205,447205,447205,447205,447205,447205],"to":[8307,8317,8324,8464,11066,14808,26136,38021,70083,71654,134502,265673,447205,8307,8317,8324,8464,11066,14808,38021,70083,71654,134502,265673,340386,447205,8307,8317,8324,8464,14808,26136,70083,71654,134502,265673,447205,8307,8317,8324,8464,11066,14808,38021,70083,71654,134502,265673,340386,8307,8317,8464,14808,38021,70083,134502,340386,8307,8317,8324,8464,11066,14808,26136,38021,70083,71654,134502,265673,340386,447205,8307,8324,14808,70083,71654,134502,447205,8307,8317,8464,11066,14808,70083,134502,265673,8307,8317,8324,8464,11066,14808,26136,38021,71654,134502,265673,340386,8307,8464,14808,70083,134502,8307,8317,8324,8464,11066,14808,26136,38021,70083,71654,134502,265673,340386,8307,8317,8324,8464,11066,14808,26136,38021,70083,71654,134502,265673,340386,447205,8317,8324,8464,11066,14808,26136,38021,70083,265673,340386,447205,8307,8317,8324,14808,26136,70083,134502,265673,447205],"weight":[2,16,11,5,2,20,2,5,25,5,34,6,2,17,2,4,17,11,28,6,9,1,16,9,5,1,6,5,2,1,10,5,4,2,5,6,7,7,21,2,4,10,20,9,1,1,21,3,3,6,14,10,9,2,2,7,1,24,25,6,13,13,2,4,11,12,2,17,6,7,2,2,2,2,1,1,4,5,7,4,8,5,11,6,5,6,25,11,4,5,2,6,1,5,1,9,11,2,6,3,3,2,4,24,19,8,29,6,24,3,5,3,2,2,1,1,6,6,3,5,1,4,1,4,13,3,1,1,3,3,2,2,2,1,2,1,4,3,3,1,2,3,1,9,3,1,1,2,2,1],"width":[1.4,4.2,3.2,2,1.4,5,1.4,2,6,2,7.8,2.2,1.4,4.4,1.4,1.8,4.4,3.2,6.6,2.2,2.8,1.2,4.2,2.8,2,1.2,2.2,2,1.4,1.2,3,2,1.8,1.4,2,2.2,2.4,2.4,5.2,1.4,1.8,3,5,2.8,1.2,1.2,5.2,1.6,1.6,2.2,3.8,3,2.8,1.4,1.4,2.4,1.2,5.8,6,2.2,3.6,3.6,1.4,1.8,3.2,3.4,1.4,4.4,2.2,2.4,1.4,1.4,1.4,1.4,1.2,1.2,1.8,2,2.4,1.8,2.6,2,3.2,2.2,2,2.2,6,3.2,1.8,2,1.4,2.2,1.2,2,1.2,2.8,3.2,1.4,2.2,1.6,1.6,1.4,1.8,5.8,4.8,2.6,6.8,2.2,5.8,1.6,2,1.6,1.4,1.4,1.2,1.2,2.2,2.2,1.6,2,1.2,1.8,1.2,1.8,3.6,1.6,1.2,1.2,1.6,1.6,1.4,1.4,1.4,1.2,1.4,1.2,1.8,1.6,1.6,1.2,1.4,1.6,1.2,2.8,1.6,1.2,1.2,1.4,1.4,1.2]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false},"manipulation":{"enabled":false},"edges":{"smooth":false,"arrows":"middle"},"physics":{"stabilization":false},"groups":{"Forward":{"color":"red","shape":"triangle","shadow":{"enabled":true}},"Midfielder":{"color":"lightblue","shape":"circle","shadow":{"enabled":true}},"Defender":{"color":"green","shape":"shield","shadow":{"enabled":true}},"useDefaultGroups":true,"Goalkeeper":{"color":"yellow","shape":"star","shadow":{"enabled":true}}}},"groups":["Midfielder","Defender","Forward","Goalkeeper"],"width":null,"height":null,"idselection":{"enabled":false},"byselection":{"enabled":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"square"},"legend":{"width":0.2,"useGroups":true,"position":"left","ncol":1,"stepX":100,"stepY":100,"zoom":true}},"evals":[],"jsHooks":[]}</script>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+title: "Welcome to Dongru's Online Portfolio!"
+---
+
+#### In this website, you will see all the data visualizations I made for ANLY503 offered by Professor Marck Vaisman and Professor Abhijit Dasgupta. BTW, great class, go take it!
+
+### Assignment1
+Explore a clinical dataset and draw 3 conceptual data visualizations to describe different aspects of the dataset, stating in each case the question to address with the visualization. These visualizations were hand drawings, but with enough detail (labels, shading, etc) to make the visualization clear to the reader.
+
+### Assignment2
+Provide critique and suggest improvements for a set of charts. Identify (1) Whether you feel the chart is good or bad (2) A criticism of the chart, and (3) Ways to improve the chart.
+
+### Assignment3
+Using the same dataset in A1: First, visualize the data and make it as ugly as possible. Then, Edit the ugly charts to make it readable.
+
+1. Change the aesthetic to make the readable chart look like it belongs in one of Nicholas Felton (Links to an external site.)’s reports.
+2. Change the aesthetic to make the readable chart look like it came from a news publication.
+3. Change the aesthetic to make the readable chart look like it belongs in an art gallery.
+
+### Assignment4
+Data wrangling with Python and R on a financial dataset. [Here](https://github.com/anly503/anly503-fall2020-a4-jiadR) is the direct link to the GitHub repo.
+
+### Assignment5
+Exploratory data analysis on transaction data.
+
+1. Explore all accounts. Create visualizations that combine or these account characteristics:
+  - Whether an account has a credit card or not
+  - Whether an account has a loan or not
+  - The average balance for the account
+2. What is the distribution of all loans and what are their characteristics?
+3. Is there a relationship between a good or bad loan and the time between an account is opened an the loan is created? Is there a specific set of accounts that seem to be at higher or lower risk of defaulting?
+4. For the account with the highest number of transactions, make a time series line plot for the behavior of the account over time, including all debits and credits, the different methods, and the with the different categories.
+5. Explore the validity of the data for the case whether or not an account has a credit card and whether or not they have associated credit card transactions. Is there anything worth noting?
+
+
+### Final Project
+This project is a sport analytics on soccer, with specific focus on English Premier League, during which I made various types of data visualizations to make you better understand soccer, for example what are good attacking strategies, what do strong teams share in common, and what motivates players as time ticking. The types of graphs in this project include geographical, network, time series, text, and gernal exploratory ones.
+
+### Final Project Network Graph
+Sadly the flexdashboard doesn't render interactive vizNetwork. It has to be listed here.
+
+
+

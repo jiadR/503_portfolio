@@ -1,0 +1,155 @@
+---
+title: "Final Project Network"
+output: 
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+library(jsonlite)
+library(tidyverse)
+library(shiny)
+library(stringr)
+library(stringi)
+library(visNetwork)
+options( warn = -1 )
+
+json_file = 'data/events/events_England.json'
+events = fromJSON(json_file,flatten = T)
+
+#test = head(events,10000)
+#write_json(test, "test.json")
+
+#json_file = 'test.json'
+events = fromJSON(json_file,flatten = T)
+events = rename(events,eventwyid = id)
+events <- events %>% 
+  select(-c(eventId,subEventId))
+```
+
+
+### Passing Network
+
+This is all the pass events recorded in a game that Mancester City absolutely destroyed their opponent, Swansea City. The result is 5 - 0. From the passing network, we can tell Man City maintained strong mid-field control and forward offensiveness. **Feel free to move thing around and come up with your formation of the game.** Go to the link [here](https://www.premierleague.com/match/22688) and click Line-ups to check out the true answer!
+
+
+```{r}
+#2500065 1625
+match.id = 2500065
+#match.id = 2499719
+team.id = 1625 #1609
+### specific match pass events
+df <- events %>%
+  filter(matchId == match.id & teamId == team.id & eventName=="Pass") %>%
+  select(c("positions", "playerId", "eventwyid")) %>%
+  unnest(positions) %>%
+  filter(row_number() %% 2 == 1) %>%
+  mutate(from1 = ifelse(row_number() %% 2==1, "from", "to"))%>%
+  mutate(from2 = ifelse(row_number() %% 2==1, "to", "from"))
+
+### player info
+json_file = 'data/players.json'
+players = fromJSON(json_file,flatten = T)
+
+### pass from
+from1 <- df %>%
+  filter(from1=="from") %>%
+  left_join(players[c("wyId", "shortName", "role.name")], by=c("playerId" = "wyId")) %>%
+  rename(from_y = y, from_x = x, from_id = playerId,
+         from_role = role.name, from_who = shortName) %>%
+  select(-c("from1","from2")) 
+from1$from_who = stri_unescape_unicode(gsub("<U\\+(....)>", "\\\\u\\1", from1$from_who)) 
+
+
+a <- nrow(df)-1
+
+from2 <- df[2:a,] %>%
+  filter(from2=="from") %>%
+  left_join(players[c("wyId", "shortName", "role.name")], by=c("playerId" = "wyId")) %>%
+  rename(from_y = y, from_x = x, from_id = playerId,
+         from_role = role.name, from_who = shortName) %>%
+  select(-c("from2","from1")) 
+from2$from_who = stri_unescape_unicode(gsub("<U\\+(....)>", "\\\\u\\1", from2$from_who)) 
+
+from <- rbind(from1,from2)
+
+### pass to
+to1 <- df%>%
+  filter(from1=="to") %>%
+  left_join(players[c("wyId", "shortName", "role.name")], by=c("playerId" = "wyId")) %>%
+  rename(to_y = y, to_x = x, to_id = playerId,
+         to_role = role.name, to_who = shortName) %>%
+  select(-c("from1","from2"))
+to1$to_who = stri_unescape_unicode(gsub("<U\\+(....)>", "\\\\u\\1", to1$to_who))
+
+a <- nrow(df)-1
+
+to2 <- df[2:a,]%>%
+  filter(from2=="to") %>%
+  left_join(players[c("wyId", "shortName", "role.name")], by=c("playerId" = "wyId")) %>%
+  rename(to_y = y, to_x = x, to_id = playerId,
+         to_role = role.name, to_who = shortName) %>%
+  select(-c("from1","from2"))
+to2$to_who = stri_unescape_unicode(gsub("<U\\+(....)>", "\\\\u\\1", to2$to_who))
+
+to <- rbind(to1,to2)
+```
+
+```{r,fig.width=10,fig.height=7}
+### list of edges
+df <- cbind(from,to)
+
+### build up network
+
+# nodes
+nodes <- rbind(from[c("from_id","from_who", "from_role")], setNames(to[c("to_id", "to_who", "to_role")], c("from_id","from_who", "from_role")))
+
+nodes <- nodes %>%
+  distinct(from_id,from_who,from_role) %>%
+  rename(id = from_id, label = from_who, group = from_role)
+
+# edges
+edges <- df %>%  
+  select(-c("eventwyid")) %>%
+  group_by(from_id, to_id) %>%
+  summarise(weight = n()) %>% 
+  ungroup() %>%
+  rename(from = from_id, to = to_id)
+
+edges <- mutate(edges, width = weight/5 + 1)
+
+
+
+
+visNetwork(nodes, edges) %>% 
+  visIgraphLayout(layout = "layout_with_fr") %>% 
+  visEdges(arrows = "middle") %>%
+  visGroups(groupname = "Forward", color = "red", shape = "triangle", 
+            shadow = list(enabled = TRUE)) %>% 
+  visGroups(groupname = "Midfielder", color = "lightblue", shape = "circle", 
+            shadow = list(enabled = TRUE)) %>%
+  visGroups(groupname = "Defender", color = "green", shape = "shield", 
+            shadow = list(enabled = TRUE)) %>%
+  visGroups(groupname = "Goalkeeper", color = "yellow", shape = "star", 
+            shadow = list(enabled = TRUE)) %>%
+    visLegend()
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

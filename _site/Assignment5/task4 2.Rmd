@@ -1,0 +1,59 @@
+---
+title: "task5"
+author: "Dongru Jia"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+df1 = read.csv('transactions.csv')
+```
+================================================================================================================================
+4.
+================================================================================================================================
+
+```{r}
+max_acct = names(which.max(table(df1$account_id)))
+
+df1 %>% filter(account_id == max_acct) %>%
+  mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=type)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+
+df1 %>% filter(account_id == max_acct) %>%
+  mutate(method = as.character(method)) %>%
+  filter(method %in% c("bank transfer", "cash", "credit card")) %>%
+  mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=method)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+
+df1 %>% filter(account_id == max_acct) %>%
+   mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=category)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+```
+
+
+
+
+
+
+
+
+

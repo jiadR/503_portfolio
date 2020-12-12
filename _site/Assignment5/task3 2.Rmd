@@ -1,0 +1,47 @@
+---
+title: "task3"
+author: "Dongru Jia"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+```
+
+================================================================================================================================
+3.
+================================================================================================================================
+
+There is no apparent relationship bewteen loan default and the difference between account creatation date and loan apply date.
+```{r}
+df %>% mutate(date.diff = as.integer(as.Date(loan_date,"%Y-%m-%d")-as.Date(acct_creation_date,"%Y-%m-%d"))) %>%
+  drop_na(loan_default) %>%
+  ggplot(aes(x=loan_default,y=date.diff))+
+  geom_boxplot()
+
+```
+
+Certain districts tend to have higher default rate.
+```{r}
+df %>%
+  drop_na(account_district) %>%
+  drop_na(loan_default) %>%
+  group_by(account_district) %>%
+  mutate(default_rate = mean(loan_default)) %>%
+  ggplot(aes(x = reorder(account_district,-default_rate), fill = loan_default)) +
+    geom_bar(stat = "count")+
+    theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
+
+

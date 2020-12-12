@@ -1,0 +1,47 @@
+---
+title: "task2"
+author: "Dongru Jia"
+date: "10/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+```
+
+================================================================================================================================
+2.
+================================================================================================================================
+
+The distribution of loan amount is skew to right. Most loans are less than 500.
+
+```{r}
+df %>% select(c('loan_amount')) %>% drop_na(.) %>% 
+  ggplot(aes(x=loan_amount))+
+  geom_histogram(bins = 50)+
+  ggtitle('loan_amoount distribution')
+
+```
+The amount of loans for each year was increasing in year 95,96, and 97.
+```{r}
+na.rm <- function(x){gsub("^$", NA, trimws(x))}
+df$loan_date = sapply(df$loan_date,na.rm)
+
+df %>% select(c('loan_date')) %>% 
+  drop_na(.) %>% 
+  mutate(loan_year_month = substring(loan_date,0,7)) %>%
+  mutate(loan_year = substring(loan_date,0,4)) %>%
+  ggplot(aes(x=loan_year_month,fill = loan_year))+
+  geom_bar(stat = "count")+
+  ggtitle('loan_amoount distribution')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+```

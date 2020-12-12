@@ -1,0 +1,170 @@
+---
+title: "task1"
+author: "Dongru Jia"
+date: "10/22/2020"
+output: html_document
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df = read.csv('accounts_analytical.csv')
+```
+
+================================================================================================================================
+1.
+================================================================================================================================
+
+```{r}
+task1 = df[,c('account_id','credit_cards','loan_amount',"max_balance","min_balance")]
+task1$credit_cards[is.na(task1$credit_cards)] <- 0
+task1$loan_amount[!is.na(task1$loan_amount)] <- T
+task1$loan_amount[is.na(task1$loan_amount)] <- F
+colnames(task1)[3] <- 'loan'
+task1$loan <- as.factor(task1$loan)
+task1$avg_balance <- (task1$max_balance+task1$min_balance)/2
+
+task1 %>% mutate(cc = ifelse(credit_cards==0, FALSE, TRUE)) %>%
+  ggplot(aes(x=loan, y=avg_balance)) +
+  geom_point(aes(color=cc, shape=loan,alpha=0.3),position=position_jitter(0.4)) +
+    labs(x = "loan status",
+           y = "average balance", title = "Loan vs Number of credit cards vs Average balance")
+
+```
+
+================================================================================================================================
+2.
+================================================================================================================================
+
+The distribution of loan amount is skew to right. Most loans are less than 500.
+
+```{r}
+df %>% select(c('loan_amount')) %>% drop_na(.) %>% 
+  ggplot(aes(x=loan_amount))+
+  geom_histogram(bins = 50)+
+  ggtitle('loan_amoount distribution')
+
+```
+The amount of loans for each year was increasing in year 95,96, and 97.
+```{r}
+na.rm <- function(x){gsub("^$", NA, trimws(x))}
+df$loan_date = sapply(df$loan_date,na.rm)
+
+df %>% select(c('loan_date')) %>% 
+  drop_na(.) %>% 
+  mutate(loan_year_month = substring(loan_date,0,7)) %>%
+  mutate(loan_year = substring(loan_date,0,4)) %>%
+  ggplot(aes(x=loan_year_month,fill = loan_year))+
+  geom_bar(stat = "count")+
+  ggtitle('loan_amoount distribution')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+
+```
+
+================================================================================================================================
+3.
+================================================================================================================================
+
+There is no apparent relationship bewteen loan default and the difference between account creatation date and loan apply date.
+```{r}
+df %>% mutate(date.diff = as.integer(as.Date(loan_date)-as.Date(acct_creation_date))) %>%
+  drop_na(loan_default) %>%
+  ggplot(aes(x=loan_default,y=date.diff))+
+  geom_boxplot()
+
+```
+
+Certain districts tend to have higher default rate.
+```{r}
+df %>%
+  drop_na(account_district) %>%
+  drop_na(loan_default) %>%
+  group_by(account_district) %>%
+  mutate(default_rate = mean(loan_default)) %>%
+  ggplot(aes(x = reorder(account_district,-default_rate), fill = loan_default)) +
+    geom_bar(stat = "count")+
+    theme_bw()+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+```
+
+================================================================================================================================
+4.
+================================================================================================================================
+```{r}
+df1 = read.csv('transactions.csv')
+```
+
+```{r}
+max_acct = names(which.max(table(df1$account_id)))
+
+df1 %>% filter(account_id == max_acct) %>%
+  mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=type)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+
+df1 %>% filter(account_id == max_acct) %>%
+  mutate(method = as.character(method)) %>%
+  filter(method %in% c("bank transfer", "cash", "credit card")) %>%
+  mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=method)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+
+df1 %>% filter(account_id == max_acct) %>%
+   mutate(time_range = as.Date(date)) %>%
+  arrange(time_range) %>%
+  ggplot(aes(x=time_range,y=amount,color=category)) +
+  geom_line() +
+  scale_x_date(date_labels = "%Y %b %d")
+```
+
+================================================================================================================================
+5.
+================================================================================================================================
+```{r}
+df$credit_cards = ifelse(is.na(df$credit_cards),F,T)
+df1 = merge(x = df1, y = df[,c("account_id","credit_cards")], by = "account_id", all.x = TRUE)
+```
+```{r}
+df1[,c("account_id","method","credit_cards")] %>% 
+  filter(as.character(method) == "credit card") %>%
+  distinct() %>%
+  ggplot(aes(x=credit_cards,y=account_id)) +
+  geom_point(shape="-",size=30, alpha=0.05)
+```
+
+
+```{r}
+library(reticulate)
+```
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+trans = pd.read_csv("transactions.csv")
+anly = pd.read_csv("accounts_analytical.csv")
+```
+
+```{python}
+anly['credit_cards'] = anly['credit_cards'].apply(lambda x: False if pd.isna(x) else True)
+trans = pd.merge(trans,anly[['account_id','credit_cards']],on='account_id',how='left')
+tar = trans[["account_id","method","credit_cards"]]
+tar = tar[tar.method=='credit card']
+tar.drop_duplicates(inplace=True)
+plt.figure(figsize=(10,5))
+plt.scatter(tar.credit_cards.astype(str),tar.account_id,alpha=0.1,marker='_',s=1000)
+plt.title('All credit card transactions')
+plt.ylabel('Account id')
+plt.xlabel('Credit card status')
+plt.margins(x=1)
+plt.show()
+```
+
+
+
+
+
+

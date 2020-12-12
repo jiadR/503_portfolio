@@ -1,0 +1,259 @@
+---
+title: "Final project"
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
+runtime: shiny
+---
+
+About this project
+=======================================================================
+
+Hello, welcome to Dongru's final project!
+
+This project is a sport analytics on soccer, with specific focus on English Premier League. They main dataset used in this project is a portion of the largest public soccer dataset which records every event that occured during each game at the entire season of 2017/2018. The original file contains every entry for the five largest soccer leagues in Europe. But due to the computing power limit, this project will only focus on EPL's data which still contains more than 640k of entries. There are also some supporting datasets which serve as maps for unique identifiers referenced in the main dataset, to be specific Teams, Players, and Matches. European Championship's event dataset is also used shortly to serve as a comparison.
+
+Each event document contains the following information:
+
+**eventId**: the identifier of the event’s type. Each eventId is associated with an event name (see next point);
+
+**eventName**: the name of the event’s type. There are seven types of events : pass, foul, shot, duel, free kick, offside and touch;
+
+**subEventId**: the identifier of the subevent’s type. Each subEventId is associated with a subevent name (see next point);
+
+**subEventName**: the name of the subevent’s type;
+
+**tags**: a list of event tags, each describing additional information about the event (e.g., accurate);
+
+**eventSec**: the time when the event occurs (in seconds since the beginning of the current half of the match);
+
+**id**: a unique identifier of the event;
+
+**matchId**: the identifier of the match the event refers to;
+
+**matchPeriod**: the period of the match. It can be “1H” (first half of the match), “2H” (second half of the match), “E1” (first extra time), “E2” (second extra time) or “P” (penalties time);
+
+**playerId**: the identifier of the player who generated the event;
+
+**positions**: the origin and destination positions associated with the event. Each position is a pair of coordinates (x, y). The x and y coordinates are always in the range [0, 100] and indicate the percentage of the field from the perspective of the attacking team. In particular, the value of the x coordinate indicates the event’s nearness (in percentage) to the opponent’s goal, while the value of the y coordinates indicates the event’s nearness (in percentage) to the right side of the field;
+
+**teamId**: the identifier of the player’s team;
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
+library(igraph)
+library(flexdashboard)
+library(jsonlite)
+library(tidyverse)
+library(ggplot2)
+library(treemap)
+library(networkD3)
+library(shiny)
+library(wordcloud2)
+library(stringr)
+library(stringi)
+library(ggsoccer)
+library(visNetwork)
+options( warn = -1 )
+
+json_file = 'data/events/events_England.json'
+events = fromJSON(json_file,flatten = T)
+
+#test = head(events,10000)
+#write_json(test, "test.json")
+
+#json_file = 'test.json'
+events = fromJSON(json_file,flatten = T)
+events = rename(events,eventwyid = id)
+events <- events %>% 
+  select(-c(eventId,subEventId))
+```
+
+Exploratory
+=======================================================================
+
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Number of wins during season 17/18
+
+```{r}
+json_file = 'data/matches/matches_England.json'
+matches = fromJSON(json_file,flatten = TRUE)
+json_file = 'data/teams/teams.json'
+teams = fromJSON(json_file,flatten = TRUE)
+
+df <- matches %>%
+  left_join(teams, by = c("winner" = "wyId")) %>%
+  group_by(name) %>%
+  summarise(count = n(),.groups = 'drop') %>%
+  drop_na()
+df$label <- paste(df$name, df$count, sep = "\n")
+
+p <- treemap(df,
+            index=c("label"),
+            vSize="count",
+            type="index",
+            palette = "Set3",
+            border.col=c("grey"),
+            title = "Not far apart, but Manchester City was killing everyone!",
+            align.labels=list(
+              c("center", "center"), 
+              c("right", "bottom")
+            )  
+          ) 
+```
+
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Let's find out event distribution on average.
+
+```{r}
+df <- events %>% 
+  group_by(matchId,eventName) %>% 
+  summarise(count = n(),.groups = 'drop') %>%
+  group_by(eventName) %>% 
+  summarise(avg_count = format(round(mean(count), 2), nsmall = 2),.groups = 'drop') %>%
+  mutate(ymax = cumsum(avg_count)) %>%
+  mutate(ymin = c(0, head(ymax, n=-1))) %>%
+  mutate(labelPosition = (ymax + ymin) / 2) %>%
+  mutate(label = paste0("Average number of\n",eventName, ": ", avg_count)) %>%
+  ungroup()
+ggplot(df, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=eventName)) +
+  geom_rect() +
+  coord_polar(theta="y") + 
+  xlim(c(0, 4)) +
+  scale_fill_discrete(name = "Event types") +
+  annotate(geom = 'text', x = 0.001, y = 0, fontface =4,
+           label = paste0("The average number \nof shots per game in \nPremier League is\n", df[10,2], "\nExciting!!")) +
+  theme_void() 
+
+```
+
+
+### The average number of events occur each game.
+
+```{r}
+ggplot(events, aes(x=matchId, fill = matchPeriod)) + 
+  geom_histogram(binwidth=3) +
+  labs(x="MatchId", y = "Counts") +
+  theme_classic() +
+  scale_fill_discrete(name = "First/Second half") +
+  theme(axis.text.x=element_blank())
+```
+
+Mancester City Spatial and Temporal Dominance
+=======================================================================
+
+Inputs {.sidebar}
+-------------------------------------
+By looking at the **Word Cloud**, we can see a lot of Accurate-Duel and Won-Duel, which means Mancester City's players were destroying their oppoents at One-on-One situations. We can also see some Accurate-Free Kick and Through-Pass, which demonstrates their offensiveness.
+
+According to **Temporal Dominance**, on average, Man City managed to keep the ball at the middle field, create a safe distance from being scored, and suppress their opponents when the oppotunity comes.
+
+From the **Spatial Dominance**, we can tell Man City is really good at seizing the oppotunity. Most of the times, when oppotunities occur, they are able to convert that into an potential goal to the enemy team by taking the shot.
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+### Keywords (refresh for visual)
+```{r}
+tags = read_csv("data/events/tags2name.csv")
+  
+df <- events %>%
+  filter(teamId == 1625) %>% 
+  unnest(tags) %>%
+  left_join(tags,by=c("id" = "Tag")) %>%
+  select(-c(id)) %>%
+  group_by(Description, eventName) %>%
+  unite(x, c("Description", "eventName"), sep = "-", remove = F) %>%
+  group_by(x) %>%
+  summarise(count = n(),.groups="drop") 
+
+set.seed(1)
+wordcloud2(data=df, size=1.4, shape = 'ball')
+```
+
+### Temporal Dominance
+```{r,fig.width=15,fig.height=7}
+df <- events %>%
+  filter(teamId==1625) %>%
+  unnest(tags) %>%
+  left_join(tags,by=c("id" = "Tag")) %>%
+  select(-c(id)) %>%
+  mutate(min = eventSec %/% 30) %>%
+  select(-c("subEventName", "playerId", "eventName", "teamId", "matchId",
+            "eventName", "Label", "Description")) %>%
+  unnest(positions) %>%
+  mutate(distance = round(sqrt((y-50)^2+(x-100)^2), 2)) %>%
+  group_by(min,matchPeriod) %>%
+  summarise(dist = round(mean(distance),2), .groups="drop") %>%
+  mutate(min = ifelse(matchPeriod=="2H", min+90, min))
+
+
+ggplot(df, aes(x = min, y = dist)) + 
+  geom_line(aes(color = matchPeriod), size = 1) +
+  scale_color_manual("First/Second half", values = c("#00AFBB", "#E7B800")) +
+  stat_smooth(color = "#FC4E07", fill = "#FC4E07",method = "loess") +
+  theme_classic() + 
+  scale_x_continuous(name="Time(every half a minute)", limits=c(0, 200)) +
+  scale_y_continuous(name="Distance to goal") + 
+  geom_vline(xintercept = 90, linetype="dotted", color = "red", size=1.5) +
+  geom_text(aes(x=95, label="Half time", y=60), colour="blue")
+  
+```
+
+
+Column {.tabset data-width=400}
+-----------------------------------------------------------------------
+
+### Spatial Dominance Shots {.no-padding}
+
+```{r}
+df <- events %>%
+  filter(teamId==1625) %>%
+  unnest(tags) %>%
+  left_join(tags,by=c("id" = "Tag")) %>%
+  select(-c(id)) %>%
+  filter(Description=="Through" | Description=="Assist" | Description=="Goal" | eventName=="Shot" |
+          Description=="Key pass" | Description=="Opportunity" | Description=="Counter attack") %>%
+  select(c("positions", "Description", "eventName", "eventwyid", "eventSec", "matchId")) %>%
+  unnest(positions) %>%
+  filter(row_number() %% 2 == 1)
+
+shots <- df %>%
+  filter(eventName=="Shot")
+
+ggplot(shots) +
+  annotate_pitch(fill   = "darkseagreen1") +
+  geom_point(aes(x = x, y = y, color=eventName), alpha = 0.1, show.legend = FALSE) +
+  direction_label() +
+  theme_pitch()
+```
+
+### Spatial Dominance Opportunity {.no-padding}
+
+```{r}
+oppos <- df %>%
+  filter(Description=="Opportunity")
+
+ggplot(oppos) +
+  annotate_pitch(fill   = "darkseagreen1") +
+  geom_point(aes(x = x, y = y, color=Description), alpha = 0.3, show.legend = FALSE) +
+  direction_label() +
+  theme_pitch()
+```
+
+
+
+
+
+
+
+
+

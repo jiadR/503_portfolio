@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+data/*
+_site/data/*
+Assignment5/transactions.csv/*
+Assignment5/accounts_analytical.csv/*
+Dataset_spine.csv/*
